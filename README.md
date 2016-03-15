@@ -1,7 +1,8 @@
 # Segway
 This repository will hold code for robots balancing on two wheels, made with various robotics platforms.
 
-This code will eventually supersede all of the programs for balancing robots currently available on [Robotsquare] (http://robotsquare.com). If you're not sure how to use this code, please refer to the existing code and associated tutorials for now.
+This fork uses python 2.7 and ev3dev unlike the original from Laurens. It is more legible, but slightly slower: the control
+loop runs every 17ms instead of 10ms.
 
 ## Currently available platforms
 
@@ -13,8 +14,4 @@ LEGO MINDSTORMS EV3 (ev3dev/Python):
 
 ## Work in progress
 
-- VEX IQ (RobotC): Completed, to be released soon
-- LEGO MINDSTORMS EV3 (EV3-G):  Currently available in legacy segway code
-- LEGO MINDSTORMS EV3 (RobotC): Awaiting some gyro issues with RobotC
-- LEGO MINDSTORMS NXT (RobotC): Currently available in legacy segway code
-- LEGO MINDSTORMS NXT (NXT-G):  Currently available in legacy segway code
+Optimize ev3dev-lang-python for read/write speed.

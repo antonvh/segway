@@ -12,10 +12,6 @@ from collections import deque
 ##
 ########################################################################
 
-# Open sensor files for (fast) reading
-touchSensorValueRaw = open("ev3devices/in1/value0", "rb")
-gyroSensorValueRaw  = open("ev3devices/in2/value0", "rb")   
-
 touchSensor = ev3.TouchSensor(ev3.INPUT_1)
 gyro_sensor = ev3.GyroSensor(ev3.INPUT_2)
 gyro_sensor.mode = gyro_sensor.MODE_GYRO_RATE
@@ -33,7 +29,12 @@ right_motor = ev3.Motor(ev3.OUTPUT_A)
 motors = [left_motor,right_motor]
 
 for motor in motors:
+    # Reset all of the motor parameter attributes to their default values.
+    # This will also have the effect of stopping the motor.
     motor.reset()
+
+    # Run the motor using the duty cycle specified by duty_cycle_sp. Unlike other run commands,
+    # changing duty_cycle_sp while running will take effect immediately.
     motor.run_direct()
 
 time.sleep(0.01)
