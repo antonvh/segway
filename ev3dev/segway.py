@@ -76,7 +76,7 @@ with open('ev3devices/outD/command', 'w') as f:
            
 #Timing settings for the program
 loopTimeMiliSec         = 10                    # Time of each loop, measured in miliseconds.
-loopTimeSec             = loopTimeMiliSec/1000  # Time of each loop, measured in seconds.
+loopTimeSec             = loopTimeMiliSec/1000.0  # Time of each loop, measured in seconds.
 motorAngleHistoryLength = 4                     # Number of previous motor angles we keep track of.
 loopCount               = 1                     # Loop counter, starting at 1
 
