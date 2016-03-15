@@ -124,7 +124,7 @@ print("-----------------------------------")
 # Remember start time because we want to set a world record
 tProgramStart = time.clock()    
         
-while touchSensor.value():
+while not touchSensor.value():
 
     ###############################################################
     ##  Loop info
