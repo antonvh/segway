@@ -3,25 +3,8 @@
 import subprocess
 import time
 import math
+import ev3dev.auto as ev3
 from collections import deque
-
-########################################################################
-##
-## File I/O functions
-##
-########################################################################
-
-# Function for fast reading from sensor files
-def FastRead(infile):
-    infile.seek(0)    
-    value = int(infile.read().decode().strip())
-    return(value)
-
-# Function for fast writing to motor files    
-def FastWrite(outfile,value):
-    outfile.truncate(0)
-    outfile.write(str(int(value)))
-    outfile.flush()    
 
 ########################################################################
 ##
@@ -29,16 +12,14 @@ def FastWrite(outfile,value):
 ##
 ########################################################################
 
-# Make symlinks to sensors and motor for easy access from this python program
-subprocess.call(['./makelinks.sh'])
-    
 # Open sensor files for (fast) reading
 touchSensorValueRaw = open("ev3devices/in1/value0", "rb")
 gyroSensorValueRaw  = open("ev3devices/in2/value0", "rb")   
 
-# Set gyro to rate mode
-with open('ev3devices/in2/mode', 'w') as f:
-    f.write('GYRO-RATE')   
+touchSensor = ev3.TouchSensor(ev3.INPUT_1)
+gyro_sensor = ev3.GyroSensor(ev3.INPUT_2)
+gyro_sensor.mode = gyro_sensor.MODE_GYRO_RATE
+
 
 ########################################################################
 ##
@@ -46,27 +27,17 @@ with open('ev3devices/in2/mode', 'w') as f:
 ##
 ########################################################################
 
-# Open sensor files for (fast) reading
-motorEncoderLeft    = open("ev3devices/outD/position", "rb")    
-motorEncoderRight   = open("ev3devices/outD/position", "rb")        
+left_motor = ev3.Motor(ev3.OUTPUT_D)
+right_motor = ev3.Motor(ev3.OUTPUT_A)
 
-# Open motor files for (fast) writing
-motorDutyCycleLeft = open("ev3devices/outD/duty_cycle_sp", "w")
-motorDutyCycleRight= open("ev3devices/outA/duty_cycle_sp", "w")
-        
-# Reset the motors
-with open('ev3devices/outA/command', 'w') as f:
-    f.write('reset')
-with open('ev3devices/outD/command', 'w') as f:
-    f.write('reset')     
-time.sleep(0.01)   
+motors = [left_motor,right_motor]
 
-# Set motors in run-direct mode
-with open('ev3devices/outA/command', 'w') as f:  
-    f.write('run-direct')        
-with open('ev3devices/outD/command', 'w') as f:
-    f.write('run-direct')    
-        
+for motor in motors:
+    motor.command = ev3.Motor.COMMAND_RUN_DIRECT
+    motor.command = ev3.Motor.COMMAND_RESET
+
+time.sleep(0.01)
+
 ########################################################################
 ##
 ## Definitions and Initialization variables
@@ -76,7 +47,7 @@ with open('ev3devices/outD/command', 'w') as f:
            
 #Timing settings for the program
 loopTimeMiliSec         = 10                    # Time of each loop, measured in miliseconds.
-loopTimeSec             = loopTimeMiliSec/1000.0  # Time of each loop, measured in seconds.
+loopTimeSec             = loopTimeMiliSec/1000.0# Time of each loop, measured in seconds.
 motorAngleHistoryLength = 4                     # Number of previous motor angles we keep track of.
 loopCount               = 1                     # Loop counter, starting at 1
 
@@ -133,9 +104,9 @@ print("Calibrating...")
 #As you hold the robot still, determine the average sensor value of 100 samples
 gyroRateCalibrateCount = 100
 for i in range(gyroRateCalibrateCount):
-    gyroOffset = gyroOffset + FastRead(gyroSensorValueRaw)
+    gyroOffset = gyroOffset + gyro_sensor.value()
     time.sleep(0.01)
-gyroOffset = gyroOffset/gyroRateCalibrateCount 
+gyroOffset /= gyroRateCalibrateCount
        
 # Print the result   
 print("GyroOffset: ",gyroOffset)   
@@ -149,18 +120,16 @@ print("-----------------------------------")
 ##
 ########################################################################    
     
-# Initial touch sensor value    
-touchSensorValue = FastRead(touchSensorValueRaw)     
-    
+
 # Remember start time because we want to set a world record
 tProgramStart = time.clock()    
         
-while(touchSensorValue == 0): 
+while touchSensor.value():
 
     ###############################################################
     ##  Loop info
     ###############################################################
-    loopCount = loopCount + 1
+    loopCount += 1
     tLoopStart = time.clock()  
 
     ###############################################################
@@ -179,18 +148,18 @@ while(touchSensorValue == 0):
     ###############################################################
     ##  Reading the Gyro.
     ###############################################################
-    gyroRateRaw = FastRead( gyroSensorValueRaw)
+    gyroRateRaw = gyro_sensor.value()
     gyroRate = (gyroRateRaw - gyroOffset)*radiansPerSecondPerRawGyroUnit
 
     ###############################################################
     ##  Reading the Motor Position
     ###############################################################
 
-    motorAngleRaw = (FastRead(motorEncoderLeft) + FastRead(motorEncoderRight))/2
+    motorAngleRaw = (left_motor.position + right_motor.position)/2.0
     motorAngle = motorAngleRaw*radiansPerRawMotorUnit
 
     motorAngularSpeedReference = speed*radPerSecPerPercentSpeed
-    motorAngleReference = motorAngleReference + motorAngularSpeedReference*loopTimeSec
+    motorAngleReference += motorAngularSpeedReference * loopTimeSec
 
     motorAngleError = motorAngle - motorAngleReference
     motorAngleHistory.append(motorAngle)
@@ -200,7 +169,7 @@ while(touchSensorValue == 0):
     ###############################################################
 
     motorAngularSpeed = (motorAngle - motorAngleHistory[0])/(motorAngleHistoryLength*loopTimeSec)
-    motorAngularSpeedError = motorAngularSpeed - motorAngularSpeedReference;
+    motorAngularSpeedError = motorAngularSpeed - motorAngularSpeedReference
 
     ###############################################################
     ##  Computing the motor duty cycle value
@@ -219,27 +188,21 @@ while(touchSensorValue == 0):
     ##  Apply the signal to the motor, and add steering
     ###############################################################
 
-    FastWrite(motorDutyCycleRight, motorDutyCycle + steering)
-    FastWrite(motorDutyCycleLeft , motorDutyCycle - steering)
+    left_motor.duty_cycle_sp = motorDutyCycle - steering
+    right_motor.duty_cycle_sp = motorDutyCycle + steering
 
     ###############################################################
     ##  Update angle estimate and Gyro Offset Estimate
     ###############################################################
 
-    gyroEstimatedAngle = gyroEstimatedAngle + gyroRate*loopTimeSec
+    gyroEstimatedAngle += gyroRate * loopTimeSec
     gyroOffset = (1-gyroDriftCompensationRate)*gyroOffset+gyroDriftCompensationRate*gyroRateRaw
 
     ###############################################################
     ##  Update Accumulated Motor Error
     ###############################################################
 
-    motorAngleErrorAccumulated = motorAngleErrorAccumulated + motorAngleError*loopTimeSec
-
-    ###############################################################
-    ##  Read the touch sensor (the kill switch)
-    ###############################################################
-
-    touchSensorValue = FastRead(touchSensorValueRaw) 
+    motorAngleErrorAccumulated += motorAngleError * loopTimeSec
 
     ###############################################################
     ##  Busy wait for the loop to complete
@@ -258,8 +221,8 @@ while(touchSensorValue == 0):
 tProgramEnd = time.clock()    
     
 # Turn off the motors    
-FastWrite(motorDutyCycleLeft ,0)
-FastWrite(motorDutyCycleRight,0)
+for motor in motors:
+    motor.duty_cycle_sp = 0
 
 # Calculate loop time
 tLoop = (tProgramEnd - tProgramStart)/loopCount
