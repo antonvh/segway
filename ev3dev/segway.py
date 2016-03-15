@@ -33,8 +33,8 @@ right_motor = ev3.Motor(ev3.OUTPUT_A)
 motors = [left_motor,right_motor]
 
 for motor in motors:
-    motor.command = ev3.Motor.COMMAND_RUN_DIRECT
-    motor.command = ev3.Motor.COMMAND_RESET
+    motor.reset()
+    motor.run_direct()
 
 time.sleep(0.01)
 
