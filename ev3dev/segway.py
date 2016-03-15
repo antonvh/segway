@@ -78,7 +78,7 @@ with open('ev3devices/outD/command', 'w') as f:
 loopTimeMiliSec         = 10                    # Time of each loop, measured in miliseconds.
 loopTimeSec             = loopTimeMiliSec/1000  # Time of each loop, measured in seconds.
 motorAngleHistoryLength = 4                     # Number of previous motor angles we keep track of.
-loopCount               = 0                     # Loop counter, starting at 0
+loopCount               = 1                     # Loop counter, starting at 1
 
 #Math constants
 radiansPerDegree               = math.pi/180                                   # The number of radians in a degree.
