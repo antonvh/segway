@@ -45,7 +45,7 @@ for motor in motors:
 
     # Run the motor using the duty cycle specified by duty_cycle_sp. Unlike other run commands,
     # changing duty_cycle_sp while running will take effect immediately.
-    motor.run_direct()
+    #motor.run_direct()
 
 time.sleep(0.01)
 
@@ -199,8 +199,8 @@ while not touchSensor.value():
     ##  Apply the signal to the motor, and add steering
     ###############################################################
 
-    left_motor.duty_cycle_sp = motorDutyCycle - steering
-    right_motor.duty_cycle_sp = motorDutyCycle + steering
+    left_motor.run_forever(duty_cycle_sp=motorDutyCycle - steering)
+    right_motor.run_forever(duty_cycle_sp=motorDutyCycle + steering)
 
     ###############################################################
     ##  Update angle estimate and Gyro Offset Estimate
