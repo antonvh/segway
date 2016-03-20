@@ -21,7 +21,6 @@ p = ev3.LegoPort(address='ttyAMA0:S2')
 p.mode = 'nxt-analog'
 p.set_device = 'lego-nxt-touch'
 
-
 touchSensor = ev3.TouchSensor('ttyAMA0:S2')
 gyro_sensor = ev3.Sensor('ttyAMA0:S1')
 #gyro_sensor.mode = gyro_sensor.MODE_GYRO_RATE
