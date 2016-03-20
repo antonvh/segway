@@ -12,9 +12,19 @@ from collections import deque
 ##
 ########################################################################
 
-touchSensor = ev3.TouchSensor(ev3.INPUT_1)
-gyro_sensor = ev3.GyroSensor(ev3.INPUT_2)
-gyro_sensor.mode = gyro_sensor.MODE_GYRO_RATE
+# Using string names, will include this in ev3dev.brickpi soon!
+p = ev3.LegoPort(address='ttyAMA0:S1')
+p.mode = 'nxt-analog'
+p.set_device = 'ht-nxt-gyro'
+
+p = ev3.LegoPort(address='ttyAMA0:S2')
+p.mode = 'nxt-analog'
+p.set_device = 'lego-nxt-touch'
+
+
+touchSensor = ev3.TouchSensor('ttyAMA0:S2')
+gyro_sensor = ev3.Sensor('ttyAMA0:S1')
+#gyro_sensor.mode = gyro_sensor.MODE_GYRO_RATE
 
 
 ########################################################################
@@ -23,8 +33,9 @@ gyro_sensor.mode = gyro_sensor.MODE_GYRO_RATE
 ##
 ########################################################################
 
-left_motor = ev3.Motor(ev3.OUTPUT_D)
-right_motor = ev3.Motor(ev3.OUTPUT_A)
+
+left_motor = ev3.Motor('ttyAMA0:MC')
+right_motor = ev3.Motor('ttyAMA0:MB')
 
 motors = [left_motor,right_motor]
 
