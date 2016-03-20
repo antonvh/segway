@@ -233,7 +233,7 @@ tProgramEnd = time.clock()
     
 # Turn off the motors    
 for motor in motors:
-    motor.duty_cycle_sp = 0
+    motor.stop()
 
 # Calculate loop time
 tLoop = (tProgramEnd - tProgramStart)/loopCount
