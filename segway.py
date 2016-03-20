@@ -16,13 +16,13 @@ from collections import deque
 p = ev3.LegoPort(address='ttyAMA0:S1')
 p.mode = 'nxt-analog'
 p.set_device = 'ht-nxt-gyro'
+gyro_sensor = ev3.Sensor('ttyAMA0:S1')
 
 p = ev3.LegoPort(address='ttyAMA0:S2')
 p.mode = 'nxt-analog'
 p.set_device = 'lego-nxt-touch'
-
 touchSensor = ev3.TouchSensor('ttyAMA0:S2')
-gyro_sensor = ev3.Sensor('ttyAMA0:S1')
+
 #gyro_sensor.mode = gyro_sensor.MODE_GYRO_RATE
 
 
@@ -59,7 +59,7 @@ time.sleep(0.01)
 #Timing settings for the program
 loopTimeMiliSec         = 10                    # Time of each loop, measured in miliseconds.
 loopTimeSec             = loopTimeMiliSec/1000.0# Time of each loop, measured in seconds.
-motorAngleHistoryLength = 4                     # Number of previous motor angles we keep track of.
+motorAngleHistoryLength = 3                     # Number of previous motor angles we keep track of.
 loopCount               = 1                     # Loop counter, starting at 1
 
 #Math constants
@@ -84,7 +84,7 @@ motorAngleHistory = deque([0],motorAngleHistoryLength)
 gainGyroAngle                  = 1156  # For every radian (57 degrees) we lean forward,            apply this amount of duty cycle.
 gainGyroRate                   = 146   # For every radian/s we fall forward,                       apply this amount of duty cycle.
 gainMotorAngle                 = 7     # For every radian we are ahead of the reference,           apply this amount of duty cycle
-gainMotorAngularSpeed          = 12    # For every radian/s drive faster than the reference value, apply this amount of duty cycle
+gainMotorAngularSpeed          = 9    # For every radian/s drive faster than the reference value, apply this amount of duty cycle
 gainMotorAngleErrorAccumulated = 3     # For every radian x s of accumulated motor angle,          apply this amount of duty cycle
 
 # Variables representing physical signals (more info on these in the docs)
@@ -171,9 +171,8 @@ while not touchSensor.value():
 
     motorAngularSpeedReference = speed*radPerSecPerPercentSpeed
     motorAngleReference += motorAngularSpeedReference * loopTimeSec
-
     motorAngleError = motorAngle - motorAngleReference
-    motorAngleHistory.append(motorAngle)
+
     
     ###############################################################
     ##  Computing Motor Speed
@@ -181,6 +180,7 @@ while not touchSensor.value():
 
     motorAngularSpeed = (motorAngle - motorAngleHistory[0])/(motorAngleHistoryLength*loopTimeSec)
     motorAngularSpeedError = motorAngularSpeed - motorAngularSpeedReference
+    motorAngleHistory.append(motorAngle)
 
     ###############################################################
     ##  Computing the motor duty cycle value
