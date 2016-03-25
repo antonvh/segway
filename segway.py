@@ -15,7 +15,7 @@ from collections import deque
 # Using string names, will include this in ev3dev.brickpi soon!
 p = ev3.LegoPort(address='ttyAMA0:S1')
 p.mode = 'nxt-analog'
-p.set_device = 'ht-nxt-gyro'
+p.set_device = 'nxt-analog'
 gyro_sensor = ev3.Sensor('ttyAMA0:S1')
 
 p = ev3.LegoPort(address='ttyAMA0:S2')
@@ -38,7 +38,7 @@ time.sleep(0.1)
 left_motor = ev3.Motor('ttyAMA0:MC')
 right_motor = ev3.Motor('ttyAMA0:MB')
 
-motors = [left_motor,right_motor]
+motors = [left_motor, right_motor]
 
 for motor in motors:
     # Reset all of the motor parameter attributes to their default values.
@@ -58,7 +58,7 @@ time.sleep(0.01)
 ########################################################################    
                 
 #
-gyro_correction = 1.3
+gyro_correction = 0.2
 
 #Timing settings for the program
 loopTimeMiliSec         = 10                    # Time of each loop, measured in miliseconds.
@@ -85,8 +85,8 @@ gyroDriftCompensationRate      = 0.1*loopTimeSec*radiansPerSecondPerRawGyroUnit
 motorAngleHistory = deque([0],motorAngleHistoryLength)
 
 # State feedback control gains (aka the magic numbers)
-gainGyroAngle                  = 1156  # For every radian (57 degrees) we lean forward,            apply this amount of duty cycle.
-gainGyroRate                   = 146   # For every radian/s we fall forward,                       apply this amount of duty cycle.
+gainGyroAngle                  = 1156*0.5  # For every radian (57 degrees) we lean forward,            apply this amount of duty cycle.
+gainGyroRate                   = 146*0.5   # For every radian/s we fall forward,                       apply this amount of duty cycle.
 gainMotorAngle                 = 0#7     # For every radian we are ahead of the reference,           apply this amount of duty cycle
 gainMotorAngularSpeed          = 0#9    # For every radian/s drive faster than the reference value, apply this amount of duty cycle
 gainMotorAngleErrorAccumulated = 0#3     # For every radian x s of accumulated motor angle,          apply this amount of duty cycle
@@ -119,7 +119,7 @@ print("Calibrating...")
 #As you hold the robot still, determine the average sensor value of 100 samples
 gyroRateCalibrateCount = 100
 for i in range(gyroRateCalibrateCount):
-    gyroOffset = gyroOffset + gyro_sensor.value()
+    gyroOffset = gyroOffset + gyro_sensor.value()*gyro_correction
     time.sleep(0.01)
 gyroOffset /= gyroRateCalibrateCount
        
@@ -194,7 +194,7 @@ while not touchSensor.value():
                    + gainGyroRate   * gyroRate
                    + gainMotorAngle * motorAngleError
                    + gainMotorAngularSpeed * motorAngularSpeedError
-                   + gainMotorAngleErrorAccumulated * motorAngleErrorAccumulated)    
+                   + gainMotorAngleErrorAccumulated * motorAngleErrorAccumulated)*0.625
     
     # Clamp the value between -100 and 100
     motorDutyCycle = min(max(motorDutyCycle,-100),100)
