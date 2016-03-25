@@ -58,7 +58,7 @@ time.sleep(0.01)
 ########################################################################    
                 
 #
-gyro_correction = 1.3
+gyro_correction = -1.3
 
 #Timing settings for the program
 loopTimeMiliSec         = 10                    # Time of each loop, measured in miliseconds.
