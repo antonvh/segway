@@ -58,7 +58,7 @@ time.sleep(0.01)
 ########################################################################    
                 
 #
-gyro_correction = -1.3
+gyro_correction = 1.3
 
 #Timing settings for the program
 loopTimeMiliSec         = 10                    # Time of each loop, measured in miliseconds.
@@ -87,9 +87,9 @@ motorAngleHistory = deque([0],motorAngleHistoryLength)
 # State feedback control gains (aka the magic numbers)
 gainGyroAngle                  = 1156  # For every radian (57 degrees) we lean forward,            apply this amount of duty cycle.
 gainGyroRate                   = 146   # For every radian/s we fall forward,                       apply this amount of duty cycle.
-gainMotorAngle                 = 7     # For every radian we are ahead of the reference,           apply this amount of duty cycle
-gainMotorAngularSpeed          = 9    # For every radian/s drive faster than the reference value, apply this amount of duty cycle
-gainMotorAngleErrorAccumulated = 3     # For every radian x s of accumulated motor angle,          apply this amount of duty cycle
+gainMotorAngle                 = 0#7     # For every radian we are ahead of the reference,           apply this amount of duty cycle
+gainMotorAngularSpeed          = 0#9    # For every radian/s drive faster than the reference value, apply this amount of duty cycle
+gainMotorAngleErrorAccumulated = 0#3     # For every radian x s of accumulated motor angle,          apply this amount of duty cycle
 
 # Variables representing physical signals (more info on these in the docs)
 motorAngleRaw              = 0 # The angle of "the motor", measured in raw units (degrees for the EV3). We will take the average of both motor positions as "the motor" angle, wich is essentially how far the middle of the robot has traveled.
