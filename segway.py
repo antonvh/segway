@@ -23,6 +23,8 @@ p.mode = 'nxt-analog'
 p.set_device = 'lego-nxt-touch'
 touchSensor = ev3.TouchSensor('ttyAMA0:S2')
 
+time.sleep(0.1)
+
 #gyro_sensor.mode = gyro_sensor.MODE_GYRO_RATE
 
 
@@ -55,7 +57,9 @@ time.sleep(0.01)
 ##
 ########################################################################    
                 
-           
+#
+gyro_correction = 1.3
+
 #Timing settings for the program
 loopTimeMiliSec         = 10                    # Time of each loop, measured in miliseconds.
 loopTimeSec             = loopTimeMiliSec/1000.0# Time of each loop, measured in seconds.
@@ -159,7 +163,7 @@ while not touchSensor.value():
     ###############################################################
     ##  Reading the Gyro.
     ###############################################################
-    gyroRateRaw = gyro_sensor.value()
+    gyroRateRaw = gyro_sensor.value()*gyro_correction
     gyroRate = (gyroRateRaw - gyroOffset)*radiansPerSecondPerRawGyroUnit
 
     ###############################################################
